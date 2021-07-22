@@ -1,4 +1,7 @@
+from flask import request
 from flask_restful import Resource
+
+from marshmallow import ValidationError
 
 from src.models import Student, Course, Group
 from src import api, db
@@ -22,8 +25,14 @@ class StudentsView(Resource):
             students = Student.query.all()
             return self.student_schema.dump(students, many=True), 200
 
-    def post(self, id):
-        pass
+    def post(self):
+        try:
+            student = self.student_schema.load(request.json, session=db.session)
+        except ValidationError as v_error:
+            return {"message": str(v_error)}, 400
+        db.session.add(student)
+        db.session.commit()
+        return self.student_schema.dump(student), 201
 
     def delete(self, id):
         if student := Student.query.get_or_404(id):
