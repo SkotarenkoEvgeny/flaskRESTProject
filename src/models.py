@@ -10,12 +10,12 @@ student_course_association = db.Table(
 class Student(db.Model):
 
     __tablename__ = 'students'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
 
-    group = db.relationship('Group')
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    group = db.relationship('Group', back_populates="students")
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=True)
 
     def __repr__(self):
         return f"{self.id}-{self.first_name}-{self.last_name}"
@@ -24,9 +24,9 @@ class Student(db.Model):
 class Group(db.Model):
 
     __tablename__ = 'groups'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     group_name = db.Column(db.String, nullable=False)
-    students = db.relationship('Student')
+    students = db.relationship('Student', back_populates="group")
 
     def __repr__(self):
         return f"{self.id}-{self.group_name}"
@@ -35,7 +35,7 @@ class Group(db.Model):
 class Course(db.Model):
 
     __tablename__ = 'courses'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     course_name = db.Column(db.String, nullable=False)
 
     def __repr__(self):

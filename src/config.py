@@ -1,7 +1,6 @@
 import pathlib
 
 BASE_DIR = pathlib.Path(__file__).parent
-print(BASE_DIR)
 
 class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + str(
