@@ -15,7 +15,10 @@ class Student(db.Model):
     last_name = db.Column(db.String, nullable=False)
 
     group = db.relationship('Group', back_populates="students")
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    courses = db.relationship("Course",
+                              secondary=student_course_association,
+                              back_populates="students")
 
     def __repr__(self):
         return f"{self.id}-{self.first_name}-{self.last_name}"
@@ -37,6 +40,9 @@ class Course(db.Model):
     __tablename__ = 'courses'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     course_name = db.Column(db.String, nullable=False)
+    students = db.relationship("Student",
+                               secondary=student_course_association,
+                               back_populates="courses")
 
     def __repr__(self):
         return f"{self.id}-{self.course_name}"

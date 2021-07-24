@@ -1,11 +1,17 @@
 from flask import request
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 
 from marshmallow import ValidationError
+
+from sqlalchemy import func
 
 from src.models import Student, Course, Group
 from src import api, db
 from src.schemas import StudentSchema, GroupSchema, CourseSchema
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('students')  # count of students
 
 
 class Smoke(Resource):
@@ -48,16 +54,36 @@ class GroupsView(Resource):
     group_schema = GroupSchema()
 
     def get(self):
-        groups = Group.query.all()
-        return self.group_schema.dump(groups, many=True)
+        args = parser.parse_args(strict=True)
+        print(args)
+        if students_count := args['students']:
+            print(students_count.isdigit())
+            print(int(students_count) > 0)
+            if students_count.isdigit() and int(students_count) > 0:
+                groups = db.session.query(Group).join(Student).group_by(
+                    Student.group_id
+                    ).having(
+                    func.count(Student.group_id) <= int(students_count)
+                    ).all()
+            else:
+                return {'message': f'bad argument {students_count}'}, 400
+        else:
+            groups = Group.query.all()
+
+        return self.group_schema.dump(groups, many=True), 200
 
 
 class CourseViews(Resource):
 
-    course_schema = CourseSchema
+    course_schema = CourseSchema()
+
+    def get(self):
+        courses = Course.query.all()
+        return self.course_schema.dump(courses, many=True), 200
 
 
 api.add_resource(Smoke, "/smoke/")
 api.add_resource(StudentsView, '/students/', '/students/<int:id>/',
                  strict_slashes=False)
 api.add_resource(GroupsView, "/groups/", strict_slashes=False)
+api.add_resource(CourseViews, "/courses/",  strict_slashes=False)

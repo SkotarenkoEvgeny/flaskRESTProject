@@ -16,7 +16,7 @@ class CourseSchema(SQLAlchemySchema):
     class Meta:
         model = Course
         load_instance = True
-        fields = ['id', 'group_name']
+        fields = ['id', 'course_name']
 
 
 class GroupSchema(SQLAlchemySchema):
