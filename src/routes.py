@@ -12,6 +12,7 @@ from src.schemas import StudentSchema, GroupSchema, CourseSchema
 
 parser = reqparse.RequestParser()
 parser.add_argument('students')  # count of students
+parser.add_argument('courses') # list of students in course
 
 
 class Smoke(Resource):
@@ -24,12 +25,22 @@ class StudentsView(Resource):
     student_schema = StudentSchema()
 
     def get(self, id=None):
+
+        args = parser.parse_args(strict=True)
+
         if id:
             student = Student.query.get_or_404(id)
             return self.student_schema.dump(student), 200
+        elif raw_course := args['courses']:
+            course_id = Course.query.filter(
+                    Course.course_name == raw_course
+                    ).first()
+            students = db.session.query(Student).filter(
+                    Student.courses.contains(course_id)
+                    ).all()
         else:
             students = Student.query.all()
-            return self.student_schema.dump(students, many=True), 200
+        return self.student_schema.dump(students, many=True), 200
 
     def post(self):
         try:
@@ -55,7 +66,6 @@ class GroupsView(Resource):
 
     def get(self):
         args = parser.parse_args(strict=True)
-        print(args)
         if students_count := args['students']:
             print(students_count.isdigit())
             print(int(students_count) > 0)
@@ -78,6 +88,7 @@ class CourseViews(Resource):
     course_schema = CourseSchema()
 
     def get(self):
+
         courses = Course.query.all()
         return self.course_schema.dump(courses, many=True), 200
 
