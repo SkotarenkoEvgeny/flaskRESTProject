@@ -11,6 +11,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('students')  # count of students
 parser.add_argument('courses')  # list of students in course
 parser.add_argument('del_course')  # delete course for student
+parser.add_argument('add_course') # add course for student
 
 
 class Smoke(Resource):
@@ -54,6 +55,7 @@ class StudentsView(Resource):
     def put(self, id):
         args = parser.parse_args(strict=True)
         student = Student.query.get_or_404(id)
+
         if del_course := args['del_course']:
             course = db.session.query(Course).filter(
                 Course.course_name == del_course
@@ -70,6 +72,27 @@ class StudentsView(Resource):
                            'message': f"'student id-{id} haven't course "
                                       f"{del_course}"
                         }, 400
+
+        if add_course := args['add_course']:
+            if course := db.session.query(Course).filter(
+                Course.course_name == add_course).first():
+                if course not in student.courses:
+                    student.courses.append(course)
+                    db.session.commit()
+                    return {
+                               'message': f'successfully added course'
+                                          f' {add_course} form student id-{id}'
+                               }, 200
+                else:
+                    return {'message': f'student id-{id} already signed up '
+                                       f'for {add_course} '
+                        }, 400
+            else:
+                return {
+                           'message': f"{add_course} not exist"
+                        }, 400
+
+
 
     def delete(self, id):
         if student := Student.query.get_or_404(id):
