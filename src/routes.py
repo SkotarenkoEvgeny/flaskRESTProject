@@ -14,12 +14,6 @@ parser.add_argument('del_course')  # delete course for student
 parser.add_argument('add_course') # add course for student
 
 
-class Smoke(Resource):
-
-    def get(self):
-        return {"message": "OK"}, 200
-
-
 class StudentsView(Resource):
     student_schema = StudentSchema()
 
@@ -27,12 +21,14 @@ class StudentsView(Resource):
         args = parser.parse_args(strict=True)
         if not id:
             if raw_course := args['courses']:
-                course_id = Course.query.filter(
-                    Course.course_name == raw_course
-                    ).first()
-                students = db.session.query(Student).filter(
-                    Student.courses.contains(course_id)
-                    ).all()
+                if course_id := Course.query.get(raw_course):
+                    students = db.session.query(Student).filter(
+                        Student.courses.contains(course_id)
+                        ).all()
+                else:
+                    return {
+                           'message': f"id course-{raw_course} not exist"
+                        }, 400
             else:
                 students = Student.query.all()
             return self.student_schema.dump(students, many=True), 200
@@ -57,40 +53,45 @@ class StudentsView(Resource):
         student = Student.query.get_or_404(id)
 
         if del_course := args['del_course']:
-            course = db.session.query(Course).filter(
-                Course.course_name == del_course
-                ).first()
-            if course in student.courses:
-                student.courses.remove(course)
-                db.session.commit()
-                return {
-                           'message': f'successfully course {del_course} form st'
-                                      f'udent id-{id} deleted'
-                           }, 200
+            if del_course.isdigit():
+                if course := db.session.query(Course).get(del_course):
+                    if course in student.courses:
+                        student.courses.remove(course)
+                        db.session.commit()
+                        return {
+                                   'message': f'successfully course {del_course} form st'
+                                              f'udent id-{id} deleted'
+                                   }, 200
+                    else:
+                        return {
+                                   'message': f"'student id-{id} haven't course "
+                                              f"{del_course}"
+                                }, 400
             else:
                 return {
-                           'message': f"'student id-{id} haven't course "
-                                      f"{del_course}"
+                            'message': f"{del_course} not exist"
                         }, 400
 
         if add_course := args['add_course']:
-            if course := db.session.query(Course).filter(
-                Course.course_name == add_course).first():
-                if course not in student.courses:
-                    student.courses.append(course)
-                    db.session.commit()
-                    return {
-                               'message': f'successfully added course'
-                                          f' {add_course} form student id-{id}'
-                               }, 200
-                else:
-                    return {'message': f'student id-{id} already signed up '
-                                       f'for {add_course} '
-                        }, 400
+            if add_course.isdigit():
+                if course := db.session.query(Course).get(add_course):
+                    if course not in student.courses:
+                        student.courses.append(course)
+                        db.session.commit()
+                        return {
+                                   'message': f'successfully added course'
+                                              f' {add_course} form student id-{id}'
+                                   }, 200
+                    else:
+                        return {'message': f'student id-{id} already signed up '
+                                           f'for {add_course} '
+                                   }, 400
             else:
                 return {
-                           'message': f"{add_course} not exist"
+                            'message': f"{add_course} not exist"
                         }, 400
+        return {'message': 'bad request'}, 400
+
 
 
 
@@ -107,6 +108,7 @@ class GroupsView(Resource):
     group_schema = GroupSchema()
 
     def get(self):
+        print(1)
         args = parser.parse_args(strict=True)
         if students_count := args['students']:
             if students_count.isdigit() and int(students_count) > 0:
@@ -130,7 +132,6 @@ class CourseViews(Resource):
         return self.course_schema.dump(courses, many=True), 200
 
 
-api.add_resource(Smoke, "/smoke/")
 api.add_resource(
     StudentsView, '/students/', '/students/<int:id>/',
     strict_slashes=False
