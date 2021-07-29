@@ -90,9 +90,6 @@ class StudentsView(Resource):
                             bad_course_id.append(item)
                     else:
                         bad_course_id.append(item)
-            print(success_course)
-            print(bad_course_id)
-
             return {
                        'message': f'successfully added courses '
                                   f'{"-".join(success_course)} for student '
