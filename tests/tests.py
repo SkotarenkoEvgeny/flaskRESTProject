@@ -1,10 +1,10 @@
+import json
 import os
 import unittest
-import json
 
-from src.config import BASE_DIR
 from src import app, db
-from src.models import Student, Group, Course
+from src.config import BASE_DIR
+from src.models import Course, Group, Student
 
 
 class TestCase(unittest.TestCase):
@@ -12,17 +12,22 @@ class TestCase(unittest.TestCase):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(
-            BASE_DIR, 'test.db')
+            BASE_DIR, 'test.db'
+            )
         self.app = app.test_client()
         db.create_all()
         for item in ('AA-11', 'AA-22'):
             db.session.add(Group(group_name=item))
         for item in ('math', 'biology'):
             db.session.add(Course(course_name=item))
-        student_1 = Student(first_name='first_name_1', last_name='last_name_1',
-                group_id=1)
-        student_2 = Student(first_name='first_name_2', last_name='last_name_2',
-                group_id=1)
+        student_1 = Student(
+            first_name='first_name_1', last_name='last_name_1',
+            group_id=1
+            )
+        student_2 = Student(
+            first_name='first_name_2', last_name='last_name_2',
+            group_id=1
+            )
         for item in Course.query.all():
             student_1.courses.append(item)
             if item.id == 1:
@@ -69,15 +74,17 @@ class TestCase(unittest.TestCase):
         self.assertEqual(len(resp), 1)
 
     def test_Add_Student(self):
-        student = {"last_name": "Jenning", "group_id": 2,
-                   "first_name": "Kadin"}
-        response = self.app.post('/students/',
-                                 headers={'Content-Type': 'application/json'},
-                                 data=json.dumps(student)
-                                 )
+        student = {
+            "last_name": "Jenning", "group_id": 2,
+            "first_name": "Kadin"
+            }
+        response = self.app.post(
+            '/students/',
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps(student)
+            )
         resp = response.json
         self.assertEqual(resp['first_name'], 'Kadin')
-
 
 
 if __name__ == '__main__':
