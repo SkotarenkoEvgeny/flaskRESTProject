@@ -9,6 +9,7 @@ flask-restful = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 marshmallow-sqlalchemy = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

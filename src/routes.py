@@ -11,7 +11,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('students')  # count of students
 parser.add_argument('courses')  # list of students in course
 parser.add_argument('del_course')  # delete course for student
-parser.add_argument('add_course') # add course for student
+parser.add_argument('add_course')  # add course for student
 
 
 class StudentsView(Resource):
@@ -27,8 +27,8 @@ class StudentsView(Resource):
                         ).all()
                 else:
                     return {
-                           'message': f"id course-{raw_course} not exist"
-                        }, 400
+                               'message': f"id course-{raw_course} not exist"
+                               }, 400
             else:
                 students = Student.query.all()
             return self.student_schema.dump(students, many=True), 200
@@ -37,6 +37,7 @@ class StudentsView(Resource):
             return self.student_schema.dump(student), 200
 
     def post(self):
+        print(request.json)
         try:
             student = self.student_schema.load(
                 request.json, session=db.session
@@ -59,41 +60,45 @@ class StudentsView(Resource):
                         student.courses.remove(course)
                         db.session.commit()
                         return {
-                                   'message': f'successfully course {del_course} form st'
+                                   'message': f'successfully course '
+                                              f'{del_course} form st'
                                               f'udent id-{id} deleted'
                                    }, 200
                     else:
                         return {
-                                   'message': f"'student id-{id} haven't course "
+                                   'message': f"'student id-{id} haven't "
+                                              f"course "
                                               f"{del_course}"
-                                }, 400
-            else:
-                return {
-                            'message': f"{del_course} not exist"
-                        }, 400
-
-        if add_course := args['add_course']:
-            if add_course.isdigit():
-                if course := db.session.query(Course).get(add_course):
-                    if course not in student.courses:
-                        student.courses.append(course)
-                        db.session.commit()
-                        return {
-                                   'message': f'successfully added course'
-                                              f' {add_course} form student id-{id}'
-                                   }, 200
-                    else:
-                        return {'message': f'student id-{id} already signed up '
-                                           f'for {add_course} '
                                    }, 400
             else:
                 return {
-                            'message': f"{add_course} not exist"
-                        }, 400
-        return {'message': 'bad request'}, 400
+                           'message': f"{del_course} not exist"
+                           }, 400
 
+        if course_list := args['add_course']:
+            success_course = []
+            bad_course_id = []
+            for item in course_list.split(', '):
 
+                if item.isdigit():
+                    if course := db.session.query(Course).get(item):
+                        if course not in student.courses:
+                            student.courses.append(course)
+                            db.session.commit()
+                            success_course.append(item)
+                        else:
+                            bad_course_id.append(item)
+                    else:
+                        bad_course_id.append(item)
+            print(success_course)
+            print(bad_course_id)
 
+            return {
+                       'message': f'successfully added courses '
+                                  f'{"-".join(success_course)} for student '
+                                  f'id-{id}. Bad course id is  '
+                                  f'{"-".join(bad_course_id)}'
+                       }, 200
 
     def delete(self, id):
         if student := Student.query.get_or_404(id):

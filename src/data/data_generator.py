@@ -49,7 +49,6 @@ while student_count != 0:
         ch = choice([True, True, True, True, False])
         # randomly add curses to student
         student_course = sample(courses, randint(0, len(courses) - 1))
-        print(student_course)
         if ch:
             group = choice(Group.query.all())
             student = Student(
@@ -63,7 +62,6 @@ while student_count != 0:
                 group_id=empty_group.id
                 )
         db.session.add(student)
-        print(student)
         for item in student_course:
             student.courses.append(
                 Course.query.filter_by(course_name=item).first()
