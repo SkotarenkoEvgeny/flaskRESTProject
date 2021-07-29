@@ -110,12 +110,13 @@ class GroupsView(Resource):
     group_schema = GroupSchema()
 
     def get(self):
-        print(1)
         args = parser.parse_args(strict=True)
         if students_count := args['students']:
             if students_count.isdigit() and int(students_count) > 0:
-                groups = db.session.query(Group).join(Student).group_by(
-                    Student.group_id
+                groups = db.session.query(Group).join(
+                    Student, Student.group_id == Group.id
+                    ).group_by(
+                    Group.id
                     ).having(
                     func.count(Student.group_id) <= int(students_count)
                     ).all()
@@ -130,6 +131,9 @@ class CourseViews(Resource):
     course_schema = CourseSchema()
 
     def get(self):
+        """
+         file: swagger/courses.yaml
+        """
         courses = Course.query.all()
         return self.course_schema.dump(courses, many=True), 200
 

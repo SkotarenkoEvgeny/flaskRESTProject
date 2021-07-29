@@ -16,6 +16,7 @@ class Student(db.Model):
 
     group = db.relationship('Group', back_populates="students")
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+
     courses = db.relationship("Course",
                               secondary=student_course_association,
                               back_populates="students")

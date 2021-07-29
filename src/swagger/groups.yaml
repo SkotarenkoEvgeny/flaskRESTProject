@@ -1,0 +1,24 @@
+parameters:
+  - name: format
+    in: query
+    description: "set json or xml format"
+    type: string
+    enum: ['json', 'xml']
+    default: json
+definitions:
+  groups:
+    type: object
+    properties:
+      driver_id:
+        type: array
+        items:
+          type: string
+          description: "[0]id, [1]group name"
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          $ref: "#/definitions/groups"
+  400:
+    description: "set a 'asc' or 'desc' in order args"

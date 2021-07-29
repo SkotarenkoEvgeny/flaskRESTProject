@@ -1,0 +1,15 @@
+definitions:
+  courses:
+    type: object
+    properties:
+      driver_id:
+        type: array
+        items:
+          type: string
+          description: "[0]course name, [1]id"
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          $ref: "#/definitions/courses"
