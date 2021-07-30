@@ -40,7 +40,9 @@ class StudentsView(Resource):
             return self.student_schema.dump(student), 200
 
     def post(self):
-        print(request.json)
+        """
+        file: swagger/students_post.yml
+        """
         try:
             student = self.student_schema.load(
                 request.json, session=db.session
@@ -53,6 +55,9 @@ class StudentsView(Resource):
         return self.student_schema.dump(student), 201
 
     def put(self, id):
+        """
+        file: swagger/students_put.yml
+        """
         args = parser.parse_args(strict=True)
         student = Student.query.get_or_404(id)
 

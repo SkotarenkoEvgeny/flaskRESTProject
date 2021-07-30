@@ -1,21 +1,13 @@
 parameters:
-  - name: courses
-    in: query
-    description: "students, who consists of course"
-    type: int
-  - name: id
-    in: "path"
-    description: "ID of student to return"
-    type: "integer"
-    format: "int64"
+  - name: course
+    in: body
+    description: "add new student"
+    schema:
+      $ref: "#/definitions/students"
 definitions:
-  students:
-    type: array
     items:
       type: object
       properties:
-        id:
-          type: integer
         group id:
           type: integer
         first name:
@@ -28,6 +20,5 @@ responses:
       application/json:
         schema:
           $ref: "#/definitions/students"
-
   400:
     description: "id course-{course_id} not exist"
