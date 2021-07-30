@@ -18,6 +18,9 @@ class StudentsView(Resource):
     student_schema = StudentSchema()
 
     def get(self, id=None):
+        """
+        file: swagger/students_get.yml
+        """
         args = parser.parse_args(strict=True)
         if not id:
             if raw_course := args['courses']:
@@ -110,6 +113,9 @@ class GroupsView(Resource):
     group_schema = GroupSchema()
 
     def get(self):
+        """
+        file: swagger/groups.yml
+        """
         args = parser.parse_args(strict=True)
         if students_count := args['students']:
             if students_count.isdigit() and int(students_count) > 0:
@@ -132,7 +138,7 @@ class CourseViews(Resource):
 
     def get(self):
         """
-         file: swagger/courses.yaml
+         file: swagger/courses.yml
         """
         courses = Course.query.all()
         return self.course_schema.dump(courses, many=True), 200
