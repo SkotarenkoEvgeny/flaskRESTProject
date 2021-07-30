@@ -1,10 +1,9 @@
 from marshmallow_sqlalchemy import SQLAlchemySchema
 
-from src.models import Student, Course, Group
+from src.models import Course, Group, Student
 
 
 class StudentSchema(SQLAlchemySchema):
-
     class Meta:
         model = Student
         load_instance = True
@@ -12,7 +11,6 @@ class StudentSchema(SQLAlchemySchema):
 
 
 class CourseSchema(SQLAlchemySchema):
-
     class Meta:
         model = Course
         load_instance = True
@@ -20,7 +18,6 @@ class CourseSchema(SQLAlchemySchema):
 
 
 class GroupSchema(SQLAlchemySchema):
-
     class Meta:
         model = Group
         load_instance = True

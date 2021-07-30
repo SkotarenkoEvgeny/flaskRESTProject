@@ -1,0 +1,16 @@
+definitions:
+  courses:
+    type: array
+    items:
+        type: object
+        properties:
+          id:
+            type: integer
+          course name:
+            type: string
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          $ref: "#/definitions/courses"

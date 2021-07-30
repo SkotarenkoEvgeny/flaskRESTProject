@@ -18,6 +18,9 @@ class StudentsView(Resource):
     student_schema = StudentSchema()
 
     def get(self, id=None):
+        """
+        file: swagger/students_get.yml
+        """
         args = parser.parse_args(strict=True)
         if not id:
             if raw_course := args['courses']:
@@ -37,7 +40,9 @@ class StudentsView(Resource):
             return self.student_schema.dump(student), 200
 
     def post(self):
-        print(request.json)
+        """
+        file: swagger/students_post.yml
+        """
         try:
             student = self.student_schema.load(
                 request.json, session=db.session
@@ -50,6 +55,9 @@ class StudentsView(Resource):
         return self.student_schema.dump(student), 201
 
     def put(self, id):
+        """
+        file: swagger/students_put.yml
+        """
         args = parser.parse_args(strict=True)
         student = Student.query.get_or_404(id)
 
@@ -110,6 +118,9 @@ class GroupsView(Resource):
     group_schema = GroupSchema()
 
     def get(self):
+        """
+        file: swagger/groups.yml
+        """
         args = parser.parse_args(strict=True)
         if students_count := args['students']:
             if students_count.isdigit() and int(students_count) > 0:
@@ -132,7 +143,7 @@ class CourseViews(Resource):
 
     def get(self):
         """
-         file: swagger/courses.yaml
+         file: swagger/courses.yml
         """
         courses = Course.query.all()
         return self.course_schema.dump(courses, many=True), 200

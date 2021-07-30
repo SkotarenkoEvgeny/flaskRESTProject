@@ -1,0 +1,24 @@
+parameters:
+  - name: course
+    in: body
+    description: "add new student"
+    schema:
+      $ref: "#/definitions/students"
+definitions:
+    items:
+      type: object
+      properties:
+        group id:
+          type: integer
+        first name:
+          type: string
+        last name:
+          type: string
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          $ref: "#/definitions/students"
+  400:
+    description: "id course-{course_id} not exist"
